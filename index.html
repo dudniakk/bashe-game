@@ -115,21 +115,43 @@
             margin: 10px 0;
             animation: fadeInUp 1.5s ease-out;
         }
+
+        .start-screen {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .start-screen input {
+            padding: 10px;
+            font-size: 1.2em;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1>Гра Баше</h1>
-        <div class="stones" id="stones">Залишилося каменів: 25</div>
-        <div class="controls">
-            <button onclick="playerMove(1)">Взяти 1</button>
-            <button onclick="playerMove(2)">Взяти 2</button>
-            <button onclick="playerMove(3)">Взяти 3</button>
+        <div class="start-screen" id="startScreen">
+            <h1>Вибір кількості каменів</h1>
+            <input type="number" id="stoneCountInput" min="10" max="100" value="25">
+            <button onclick="startGame()">Почати гру</button>
         </div>
-        <div class="status" id="status"></div>
+        <div id="gameScreen" style="display:none;">
+            <h1>Гра Баше</h1>
+            <div class="stones" id="stones">Залишилося каменів: 25</div>
+            <div class="controls">
+                <button onclick="playerMove(1)">Взяти 1</button>
+                <button onclick="playerMove(2)">Взяти 2</button>
+                <button onclick="playerMove(3)">Взяти 3</button>
+            </div>
+            <div class="status" id="status"></div>
+        </div>
     </div>
 
     <script>
+        let stones = 25;
+
         // Перевірка мови браузера і встановлення мови для сторінки
         if (navigator.language.includes('uk')) {
             document.documentElement.lang = 'uk';  // Встановлює українську мову
@@ -137,7 +159,19 @@
             document.documentElement.lang = 'en';  // Встановлює англійську мову
         }
 
-        let stones = 25;
+        function startGame() {
+            stones = parseInt(document.getElementById("stoneCountInput").value);
+            if (isNaN(stones) || stones < 10 || stones > 100) {
+                alert("Введіть правильну кількість каменів (від 10 до 100).");
+                return;
+            }
+
+            // Приховати екран вибору каменів
+            document.getElementById("startScreen").style.display = "none";
+            // Показати екран гри
+            document.getElementById("gameScreen").style.display = "block";
+            updateDisplay('Гра почалася!');
+        }
 
         function playerMove(amount) {
             stones -= amount;
@@ -168,8 +202,9 @@
         }
 
         function resetGame() {
-            stones = 25;
-            updateDisplay('Гра почалася заново.');
+            document.getElementById("startScreen").style.display = "block";
+            document.getElementById("gameScreen").style.display = "none";
+            document.getElementById("stoneCountInput").value = 25; // Встановлює значення за замовчуванням
         }
     </script>
 </body>
