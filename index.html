@@ -10,120 +10,145 @@
             background-color: #1a1a1a;
             color: #fff;
             text-align: center;
-            margin: 0;
-            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            animation: fadeIn 1.5s ease-in-out;
         }
-
         .game-container {
             background-color: rgba(44, 44, 44, 0.9);
             padding: 20px;
             border-radius: 15px;
             width: 300px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+            animation: scaleIn 1s ease-out;
         }
-
         .controls button {
             margin: 5px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            color: white;
+            padding: 10px;
             font-size: 1.2em;
-            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
         }
-
+        .controls button:hover {
+            background-color: #0056b3;
+            transform: scale(1.1);
+        }
         .controls button:disabled {
             background-color: #555;
             cursor: not-allowed;
+        }
+        .stones {
+            font-size: 1.5em;
+            margin: 20px 0;
+            transition: transform 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div class="game-container">
         <div class="start-screen" id="startScreen">
-            <h1>Вибір кількості каменів</h1>
-            <input type="number" id="stoneCountInput" min="10" max="100" value="25">
+            <h1>Налаштування гри</h1>
+            <label>Кількість каменів: <input type="number" id="stoneCountInput" min="10" max="100" value="25"></label>
+            <label>Макс. можна взяти: <input type="number" id="maxTakeInput" min="1" max="10" value="3"></label>
             <button onclick="startGame()">Почати гру</button>
         </div>
         <div id="gameScreen" style="display:none;">
             <h1>Гра Баше</h1>
             <div class="stones" id="stones">Залишилося каменів: 25</div>
-            <div class="controls">
-                <button onclick="playerMove(1)">Взяти 1</button>
-                <button onclick="playerMove(2)">Взяти 2</button>
-                <button onclick="playerMove(3)">Взяти 3</button>
-            </div>
+            <div class="controls" id="controls"></div>
             <div class="status" id="status"></div>
         </div>
     </div>
-
+    
     <script>
-        let stones = 25;
-
+        let stones, maxTake;
         function startGame() {
             stones = parseInt(document.getElementById("stoneCountInput").value);
-            if (isNaN(stones) || stones < 10 || stones > 100) {
-                alert("Введіть правильну кількість каменів (від 10 до 100). ");
+            maxTake = parseInt(document.getElementById("maxTakeInput").value);
+            
+            if (isNaN(stones) || stones < 10 || stones > 100 || isNaN(maxTake) || maxTake < 1 || maxTake >= stones) {
+                alert("Введіть правильні параметри.");
                 return;
             }
             document.getElementById("startScreen").style.display = "none";
             document.getElementById("gameScreen").style.display = "block";
+            generateButtons();
             updateDisplay('Гра почалася!');
         }
-
+        
+        function generateButtons() {
+            let controls = document.getElementById("controls");
+            controls.innerHTML = "";
+            for (let i = 1; i <= maxTake; i++) {
+                let button = document.createElement("button");
+                button.textContent = `Взяти ${i}`;
+                button.dataset.value = i;
+                button.onclick = () => playerMove(i);
+                controls.appendChild(button);
+            }
+        }
+        
         function playerMove(amount) {
-            disableButtons();
+            if (amount > stones) return;
             stones -= amount;
             updateDisplay(`Ти взяв ${amount} камінь(я).`);
-
+            animateStones();
+            disableButtons(true);
             if (stones <= 0) {
-                setTimeout(() => {
-                    alert("Ти виграв!");
-                    resetGame();
-                }, 500);
-            } else {
-                setTimeout(botMove, 1000);
+                setTimeout(() => alert("Ти виграв!"), 500);
+                resetGame();
+                return;
             }
+            setTimeout(botMove, 1000);
         }
-
+        
         function botMove() {
-            let botChoice = stones % 4 === 0 ? Math.min(Math.floor(Math.random() * 3) + 1, stones) : Math.min(stones % 4, stones);
+            let botChoice = optimalMove();
             stones -= botChoice;
             updateDisplay(`Бот взяв ${botChoice} камінь(я).`);
-
+            animateStones();
             if (stones <= 0) {
-                setTimeout(() => {
-                    alert("Бот виграв!");
-                    resetGame();
-                }, 500);
-            } else {
-                enableButtons();
+                setTimeout(() => alert("Бот виграв!"), 500);
+                resetGame();
+                return;
             }
+            disableButtons(false);
         }
-
+        
+        function optimalMove() {
+            let target = stones % (maxTake + 1);
+            return target === 0 ? Math.min(stones, Math.floor(Math.random() * maxTake) + 1) : target;
+        }
+        
         function updateDisplay(statusText) {
             document.getElementById('stones').innerText = `Залишилося каменів: ${stones}`;
             document.getElementById('status').innerText = statusText;
         }
-
-        function disableButtons() {
-            document.querySelectorAll(".controls button").forEach(button => button.disabled = true);
+        
+        function disableButtons(state) {
+            document.querySelectorAll('.controls button').forEach(button => {
+                button.disabled = state;
+            });
         }
-
-        function enableButtons() {
-            document.querySelectorAll(".controls button").forEach(button => button.disabled = false);
+        
+        function animateStones() {
+            let stonesDiv = document.getElementById('stones');
+            stonesDiv.style.transform = 'scale(1.2)';
+            setTimeout(() => stonesDiv.style.transform = 'scale(1)', 300);
         }
-
+        
         function resetGame() {
             document.getElementById("startScreen").style.display = "block";
             document.getElementById("gameScreen").style.display = "none";
-            document.getElementById("stoneCountInput").value = 25;
-            enableButtons();
         }
     </script>
 </body>
