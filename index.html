@@ -80,8 +80,11 @@
 
     <script>
         let stones = 25;
+        let gameOver = false; // Додано: для перевірки, чи закінчена гра
 
         function playerMove(amount) {
+            if (gameOver) return; // Якщо гра завершена, не виконуємо хід гравця
+
             stones -= amount;
             updateDisplay(`Ти взяв ${amount} камінь(я).`);
 
@@ -89,6 +92,7 @@
                 setTimeout(() => {
                     alert("Ти виграв!");
                     saveLeaderboard();  // Збереження результату після виграшу
+                    gameOver = true;  // Завершуємо гру
                 }, 500);
                 resetGame();
             } else {
@@ -97,6 +101,8 @@
         }
 
         function botMove() {
+            if (gameOver) return; // Якщо гра завершена, бот не робить хід
+
             let botChoice = stones % 4 === 0 ? Math.floor(Math.random() * 3) + 1 : stones % 4;
             stones -= botChoice;
             updateDisplay(`Бот взяв ${botChoice} камінь(я).`);
@@ -105,6 +111,7 @@
                 setTimeout(() => {
                     alert("Бот виграв!");
                     saveLeaderboard();  // Збереження результату після виграшу
+                    gameOver = true;  // Завершуємо гру
                 }, 500);
                 resetGame();
             }
@@ -117,6 +124,7 @@
 
         function resetGame() {
             stones = 25;
+            gameOver = false;  // Повертаємо гру до початкового стану
             updateDisplay('Гра почалася заново.');
         }
 
