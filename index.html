@@ -75,6 +75,13 @@
     </div>
 
     <script>
+        // Перевірка мови браузера і встановлення мови для сторінки
+        if (navigator.language.includes('uk')) {
+            document.documentElement.lang = 'uk';  // Встановлює українську мову
+        } else {
+            document.documentElement.lang = 'en';  // Встановлює англійську мову
+        }
+
         let stones = 25;
 
         function playerMove(amount) {
@@ -90,7 +97,7 @@
         }
 
         function botMove() {
-            let botChoice = stones % 4 === 0 ? Math.floor(Math.random() * 3) + 1 : stones % 4;
+            let botChoice = stones % 4 === 0 ? Math.min(Math.floor(Math.random() * 3) + 1, stones) : Math.min(stones % 4, stones);
             stones -= botChoice;
             updateDisplay(`Бот взяв ${botChoice} камінь(я).`);
 
