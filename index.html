@@ -16,22 +16,6 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-image: url('https://source.unsplash.com/1600x900/?nature,game');
-            background-size: cover;
-            background-position: center;
-            animation: backgroundAnimation 20s infinite alternate;
-        }
-
-        @keyframes backgroundAnimation {
-            0% {
-                background-image: url('https://source.unsplash.com/1600x900/?nature,game');
-            }
-            50% {
-                background-image: url('https://source.unsplash.com/1600x900/?mountains,landscape');
-            }
-            100% {
-                background-image: url('https://source.unsplash.com/1600x900/?sunset,sky');
-            }
         }
 
         .game-container {
@@ -40,29 +24,6 @@
             border-radius: 15px;
             width: 300px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-            transition: transform 0.3s ease;
-            animation: gameContainerAnimation 2s ease-out;
-        }
-
-        @keyframes gameContainerAnimation {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        h1 {
-            animation: fadeIn 1.5s ease-in-out;
-        }
-
-        .stones {
-            font-size: 1.5em;
-            margin: 20px 0;
-            animation: fadeInUp 1s ease-out;
         }
 
         .controls button {
@@ -74,59 +35,11 @@
             color: white;
             font-size: 1.2em;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            animation: buttonAnimation 1.5s ease-out;
         }
 
-        .controls button:hover {
-            background-color: #0056b3;
-            transform: scale(1.1);
-        }
-
-        @keyframes buttonAnimation {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .status {
-            font-size: 1.2em;
-            margin: 10px 0;
-            animation: fadeInUp 1.5s ease-out;
-        }
-
-        .start-screen {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .start-screen input {
-            padding: 10px;
-            font-size: 1.2em;
-            margin-right: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+        .controls button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -152,34 +65,27 @@
     <script>
         let stones = 25;
 
-        // Перевірка мови браузера і встановлення мови для сторінки
-        if (navigator.language.includes('uk')) {
-            document.documentElement.lang = 'uk';  // Встановлює українську мову
-        } else {
-            document.documentElement.lang = 'en';  // Встановлює англійську мову
-        }
-
         function startGame() {
             stones = parseInt(document.getElementById("stoneCountInput").value);
             if (isNaN(stones) || stones < 10 || stones > 100) {
-                alert("Введіть правильну кількість каменів (від 10 до 100).");
+                alert("Введіть правильну кількість каменів (від 10 до 100). ");
                 return;
             }
-
-            // Приховати екран вибору каменів
             document.getElementById("startScreen").style.display = "none";
-            // Показати екран гри
             document.getElementById("gameScreen").style.display = "block";
             updateDisplay('Гра почалася!');
         }
 
         function playerMove(amount) {
+            disableButtons();
             stones -= amount;
             updateDisplay(`Ти взяв ${amount} камінь(я).`);
 
             if (stones <= 0) {
-                setTimeout(() => alert("Ти виграв!"), 500);
-                resetGame();
+                setTimeout(() => {
+                    alert("Ти виграв!");
+                    resetGame();
+                }, 500);
             } else {
                 setTimeout(botMove, 1000);
             }
@@ -191,8 +97,12 @@
             updateDisplay(`Бот взяв ${botChoice} камінь(я).`);
 
             if (stones <= 0) {
-                setTimeout(() => alert("Бот виграв!"), 500);
-                resetGame();
+                setTimeout(() => {
+                    alert("Бот виграв!");
+                    resetGame();
+                }, 500);
+            } else {
+                enableButtons();
             }
         }
 
@@ -201,10 +111,19 @@
             document.getElementById('status').innerText = statusText;
         }
 
+        function disableButtons() {
+            document.querySelectorAll(".controls button").forEach(button => button.disabled = true);
+        }
+
+        function enableButtons() {
+            document.querySelectorAll(".controls button").forEach(button => button.disabled = false);
+        }
+
         function resetGame() {
             document.getElementById("startScreen").style.display = "block";
             document.getElementById("gameScreen").style.display = "none";
-            document.getElementById("stoneCountInput").value = 25; // Встановлює значення за замовчуванням
+            document.getElementById("stoneCountInput").value = 25;
+            enableButtons();
         }
     </script>
 </body>
