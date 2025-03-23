@@ -128,6 +128,25 @@
             border-radius: 5px;
             border: 1px solid #ccc;
         }
+
+        .leaderboard {
+            margin-top: 20px;
+            color: #ff0;
+            font-size: 1.2em;
+        }
+
+        .leaderboard h2 {
+            margin-bottom: 10px;
+        }
+
+        .leaderboard ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .leaderboard li {
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -147,6 +166,13 @@
             </div>
             <div class="status" id="status"></div>
         </div>
+
+        <div class="leaderboard" id="leaderboard">
+            <h2>Лідери</h2>
+            <ul id="leaderList">
+                <!-- Лідери будуть відображатися тут -->
+            </ul>
+        </div>
     </div>
 
     <script>
@@ -159,6 +185,7 @@
             document.documentElement.lang = 'en';  // Встановлює англійську мову
         }
 
+        // Функція для початку гри
         function startGame() {
             stones = parseInt(document.getElementById("stoneCountInput").value);
             if (isNaN(stones) || stones < 10 || stones > 100) {
@@ -173,39 +200,83 @@
             updateDisplay('Гра почалася!');
         }
 
+        // Функція для ходу гравця
         function playerMove(amount) {
             stones -= amount;
             updateDisplay(`Ти взяв ${amount} камінь(я).`);
 
             if (stones <= 0) {
-                setTimeout(() => alert("Ти виграв!"), 500);
+                setTimeout(() => {
+                    alert("Ти виграв!");
+                    saveLeaderboard();
+                }, 500);
                 resetGame();
             } else {
                 setTimeout(botMove, 1000);
             }
         }
 
+        // Функція для ходу бота
         function botMove() {
             let botChoice = stones % 4 === 0 ? Math.min(Math.floor(Math.random() * 3) + 1, stones) : Math.min(stones % 4, stones);
             stones -= botChoice;
             updateDisplay(`Бот взяв ${botChoice} камінь(я).`);
 
             if (stones <= 0) {
-                setTimeout(() => alert("Бот виграв!"), 500);
+                setTimeout(() => {
+                    alert("Бот виграв!");
+                    saveLeaderboard();
+                }, 500);
                 resetGame();
             }
         }
 
+        // Оновлення екрану гри
         function updateDisplay(statusText) {
             document.getElementById('stones').innerText = `Залишилося каменів: ${stones}`;
             document.getElementById('status').innerText = statusText;
         }
 
+        // Функція для збереження результату в список лідерів
+        function saveLeaderboard() {
+            let playerName = prompt("Введіть ваше ім'я для лідерборду:");
+            if (!playerName) playerName = "Невідомий";
+
+            // Отримуємо список лідерів з localStorage
+            let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+            leaderboard.push({ name: playerName, score: stones });
+
+            // Сортуємо список лідерів за результатами
+            leaderboard.sort((a, b) => b.score - a.score);
+
+            // Оновлюємо список лідерів в localStorage (зберігаємо не більше 10 лідерів)
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard.slice(0, 10)));
+
+            // Оновлюємо відображення лідерів
+            displayLeaderboard();
+        }
+
+        // Функція для відображення лідерів
+        function displayLeaderboard() {
+            let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+            let leaderList = document.getElementById('leaderList');
+            leaderList.innerHTML = '';
+            leaderboard.forEach((entry, index) => {
+                let li = document.createElement('li');
+                li.textContent = `${index + 1}. ${entry.name} - ${entry.score} каменів`;
+                leaderList.appendChild(li);
+            });
+        }
+
+        // Функція для скидання гри
         function resetGame() {
             document.getElementById("startScreen").style.display = "block";
             document.getElementById("gameScreen").style.display = "none";
             document.getElementById("stoneCountInput").value = 25; // Встановлює значення за замовчуванням
         }
+
+        // Відображає лідерів при завантаженні сторінки
+        window.onload = displayLeaderboard;
     </script>
 </body>
 </html>
