@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Bash</title>
+    <title>Гра Баше</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,12 +16,23 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background-image: url('https://path/to/your/background-image.jpg');
+            background-size: cover;
+            background-position: center;
         }
         .game-container {
-            background-color: #2c2c2c;
+            background-color: rgba(44, 44, 44, 0.9);
             padding: 20px;
             border-radius: 15px;
             width: 300px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+            transition: transform 0.3s ease;
+        }
+        .game-container:hover {
+            transform: scale(1.05);
+        }
+        h1 {
+            animation: fadeIn 2s ease-in-out;
         }
         .stones {
             font-size: 1.5em;
@@ -36,6 +47,7 @@
             color: white;
             font-size: 1em;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
         .controls button:hover {
             background-color: #0056b3;
@@ -44,16 +56,20 @@
             font-size: 1.2em;
             margin: 10px 0;
         }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1>Game Bash</h1>
-        <div class="stones" id="stones">Stones left: 25</div>
+        <h1>Гра Баше</h1>
+        <div class="stones" id="stones">Залишилося каменів: 25</div>
         <div class="controls">
-            <button onclick="playerMove(1)">Take 1</button>
-            <button onclick="playerMove(2)">Take 2</button>
-            <button onclick="playerMove(3)">Take 3</button>
+            <button onclick="playerMove(1)">Взяти 1</button>
+            <button onclick="playerMove(2)">Взяти 2</button>
+            <button onclick="playerMove(3)">Взяти 3</button>
         </div>
         <div class="status" id="status"></div>
     </div>
@@ -63,11 +79,10 @@
 
         function playerMove(amount) {
             stones -= amount;
-            document.getElementById('stones').innerText = `Stones left: ${stones}`;
-            document.getElementById('status').innerText = `You took ${amount} stone(s).`;
-            
+            updateDisplay(`Ти взяв ${amount} камінь(я).`);
+
             if (stones <= 0) {
-                alert("You won!");
+                setTimeout(() => alert("Ти виграв!"), 500);
                 resetGame();
             } else {
                 setTimeout(botMove, 1000);
@@ -77,19 +92,22 @@
         function botMove() {
             let botChoice = stones % 4 === 0 ? Math.floor(Math.random() * 3) + 1 : stones % 4;
             stones -= botChoice;
-            document.getElementById('stones').innerText = `Stones left: ${stones}`;
-            document.getElementById('status').innerText = `Bot took ${botChoice} stone(s).`;
+            updateDisplay(`Бот взяв ${botChoice} камінь(я).`);
 
             if (stones <= 0) {
-                alert("Bot won!");
+                setTimeout(() => alert("Бот виграв!"), 500);
                 resetGame();
             }
         }
 
+        function updateDisplay(statusText) {
+            document.getElementById('stones').innerText = `Залишилося каменів: ${stones}`;
+            document.getElementById('status').innerText = statusText;
+        }
+
         function resetGame() {
             stones = 25;
-            document.getElementById('stones').innerText = `Stones left: 25`;
-            document.getElementById('status').innerText = '';
+            updateDisplay('Гра почалася заново.');
         }
     </script>
 </body>
