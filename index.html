@@ -56,6 +56,10 @@
             font-size: 1.2em;
             margin: 10px 0;
         }
+        #leaderboard {
+            display: none; /* Сховуємо список лідерів за замовчуванням */
+            margin-top: 20px;
+        }
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -70,9 +74,10 @@
             <button onclick="playerMove(1)">Взяти 1</button>
             <button onclick="playerMove(2)">Взяти 2</button>
             <button onclick="playerMove(3)">Взяти 3</button>
+            <button onclick="toggleLeaderboard()">Показати лідерів</button> <!-- Кнопка для показу лідерів -->
         </div>
         <div class="status" id="status"></div>
-        <div class="leaderboard" id="leaderboard">
+        <div id="leaderboard">
             <h2>Лідери:</h2>
             <ul id="leaderList"></ul>
         </div>
@@ -161,6 +166,17 @@
                     li.textContent = `${index + 1}. ${entry.name} - ${entry.score} каменів`;
                     leaderList.appendChild(li);
                 });
+            }
+        }
+
+        // Перемикання видимості лідерборду
+        function toggleLeaderboard() {
+            let leaderboard = document.getElementById('leaderboard');
+            if (leaderboard.style.display === "none") {
+                leaderboard.style.display = "block";  // Показати список лідерів
+                displayLeaderboard();  // Оновлення лідерів
+            } else {
+                leaderboard.style.display = "none";  // Сховати список лідерів
             }
         }
 
