@@ -16,24 +16,10 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-image: url('https://source.unsplash.com/1600x900/?nature,game');
+            background-image: url('https://path/to/your/background-image.jpg');
             background-size: cover;
             background-position: center;
-            animation: backgroundAnimation 20s infinite alternate;
         }
-
-        @keyframes backgroundAnimation {
-            0% {
-                background-image: url('https://source.unsplash.com/1600x900/?nature,game');
-            }
-            50% {
-                background-image: url('https://source.unsplash.com/1600x900/?mountains,landscape');
-            }
-            100% {
-                background-image: url('https://source.unsplash.com/1600x900/?sunset,sky');
-            }
-        }
-
         .game-container {
             background-color: rgba(44, 44, 44, 0.9);
             padding: 20px;
@@ -41,30 +27,17 @@
             width: 300px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
             transition: transform 0.3s ease;
-            animation: gameContainerAnimation 2s ease-out;
         }
-
-        @keyframes gameContainerAnimation {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
+        .game-container:hover {
+            transform: scale(1.05);
         }
-
         h1 {
-            animation: fadeIn 1.5s ease-in-out;
+            animation: fadeIn 2s ease-in-out;
         }
-
         .stones {
             font-size: 1.5em;
             margin: 20px 0;
-            animation: fadeInUp 1s ease-out;
         }
-
         .controls button {
             margin: 5px;
             padding: 10px 20px;
@@ -72,135 +45,42 @@
             border: none;
             border-radius: 5px;
             color: white;
-            font-size: 1.2em;
+            font-size: 1em;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            animation: buttonAnimation 1.5s ease-out;
+            transition: background-color 0.3s ease;
         }
-
         .controls button:hover {
             background-color: #0056b3;
-            transform: scale(1.1);
         }
-
-        @keyframes buttonAnimation {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .status {
             font-size: 1.2em;
             margin: 10px 0;
-            animation: fadeInUp 1.5s ease-out;
         }
-
-        .start-screen {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .start-screen input {
-            padding: 10px;
-            font-size: 1.2em;
-            margin-right: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        .leaderboard {
-            margin-top: 20px;
-            color: #ff0;
-            font-size: 1.2em;
-        }
-
-        .leaderboard h2 {
-            margin-bottom: 10px;
-        }
-
-        .leaderboard ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .leaderboard li {
-            margin-bottom: 5px;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <div class="start-screen" id="startScreen">
-            <h1>Вибір кількості каменів</h1>
-            <input type="number" id="stoneCountInput" min="10" max="100" value="25">
-            <button onclick="startGame()">Почати гру</button>
+        <h1>Гра Баше</h1>
+        <div class="stones" id="stones">Залишилося каменів: 25</div>
+        <div class="controls">
+            <button onclick="playerMove(1)">Взяти 1</button>
+            <button onclick="playerMove(2)">Взяти 2</button>
+            <button onclick="playerMove(3)">Взяти 3</button>
         </div>
-        <div id="gameScreen" style="display:none;">
-            <h1>Гра Баше</h1>
-            <div class="stones" id="stones">Залишилося каменів: 25</div>
-            <div class="controls">
-                <button onclick="playerMove(1)">Взяти 1</button>
-                <button onclick="playerMove(2)">Взяти 2</button>
-                <button onclick="playerMove(3)">Взяти 3</button>
-            </div>
-            <div class="status" id="status"></div>
-        </div>
-
+        <div class="status" id="status"></div>
         <div class="leaderboard" id="leaderboard">
-            <h2>Лідери</h2>
-            <ul id="leaderList">
-                <!-- Лідери будуть відображатися тут -->
-            </ul>
+            <h2>Лідери:</h2>
+            <ul id="leaderList"></ul>
         </div>
     </div>
 
     <script>
         let stones = 25;
 
-        // Перевірка мови браузера і встановлення мови для сторінки
-        if (navigator.language.includes('uk')) {
-            document.documentElement.lang = 'uk';  // Встановлює українську мову
-        } else {
-            document.documentElement.lang = 'en';  // Встановлює англійську мову
-        }
-
-        // Функція для початку гри
-        function startGame() {
-            stones = parseInt(document.getElementById("stoneCountInput").value);
-            if (isNaN(stones) || stones < 10 || stones > 100) {
-                alert("Введіть правильну кількість каменів (від 10 до 100).");
-                return;
-            }
-
-            // Приховати екран вибору каменів
-            document.getElementById("startScreen").style.display = "none";
-            // Показати екран гри
-            document.getElementById("gameScreen").style.display = "block";
-            updateDisplay('Гра почалася!');
-        }
-
-        // Функція для ходу гравця
         function playerMove(amount) {
             stones -= amount;
             updateDisplay(`Ти взяв ${amount} камінь(я).`);
@@ -208,7 +88,7 @@
             if (stones <= 0) {
                 setTimeout(() => {
                     alert("Ти виграв!");
-                    saveLeaderboard();
+                    saveLeaderboard();  // Збереження результату після виграшу
                 }, 500);
                 resetGame();
             } else {
@@ -216,66 +96,67 @@
             }
         }
 
-        // Функція для ходу бота
         function botMove() {
-            let botChoice = stones % 4 === 0 ? Math.min(Math.floor(Math.random() * 3) + 1, stones) : Math.min(stones % 4, stones);
+            let botChoice = stones % 4 === 0 ? Math.floor(Math.random() * 3) + 1 : stones % 4;
             stones -= botChoice;
             updateDisplay(`Бот взяв ${botChoice} камінь(я).`);
 
             if (stones <= 0) {
                 setTimeout(() => {
                     alert("Бот виграв!");
-                    saveLeaderboard();
+                    saveLeaderboard();  // Збереження результату після виграшу
                 }, 500);
                 resetGame();
             }
         }
 
-        // Оновлення екрану гри
         function updateDisplay(statusText) {
             document.getElementById('stones').innerText = `Залишилося каменів: ${stones}`;
             document.getElementById('status').innerText = statusText;
         }
 
-        // Функція для збереження результату в список лідерів
-        function saveLeaderboard() {
+        function resetGame() {
+            stones = 25;
+            updateDisplay('Гра почалася заново.');
+        }
+
+        // Збереження результату в базу даних через API
+        async function saveLeaderboard() {
             let playerName = prompt("Введіть ваше ім'я для лідерборду:");
             if (!playerName) playerName = "Невідомий";
 
-            // Отримуємо список лідерів з localStorage
-            let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-            leaderboard.push({ name: playerName, score: stones });
-
-            // Сортуємо список лідерів за результатами
-            leaderboard.sort((a, b) => b.score - a.score);
-
-            // Оновлюємо список лідерів в localStorage (зберігаємо не більше 10 лідерів)
-            localStorage.setItem('leaderboard', JSON.stringify(leaderboard.slice(0, 10)));
-
-            // Оновлюємо відображення лідерів
-            displayLeaderboard();
-        }
-
-        // Функція для відображення лідерів
-        function displayLeaderboard() {
-            let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-            let leaderList = document.getElementById('leaderList');
-            leaderList.innerHTML = '';
-            leaderboard.forEach((entry, index) => {
-                let li = document.createElement('li');
-                li.textContent = `${index + 1}. ${entry.name} - ${entry.score} каменів`;
-                leaderList.appendChild(li);
+            const response = await fetch('http://localhost:3000/leaderboard', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: playerName, score: stones })
             });
+
+            if (response.ok) {
+                alert("Результат збережено!");
+                displayLeaderboard();  // Оновлення лідерів
+            } else {
+                alert("Помилка при збереженні результату.");
+            }
         }
 
-        // Функція для скидання гри
-        function resetGame() {
-            document.getElementById("startScreen").style.display = "block";
-            document.getElementById("gameScreen").style.display = "none";
-            document.getElementById("stoneCountInput").value = 25; // Встановлює значення за замовчуванням
+        // Отримання лідерів через API
+        async function displayLeaderboard() {
+            const response = await fetch('http://localhost:3000/leaderboard');
+            if (response.ok) {
+                const leaderboard = await response.json();
+                let leaderList = document.getElementById('leaderList');
+                leaderList.innerHTML = '';
+                leaderboard.forEach((entry, index) => {
+                    let li = document.createElement('li');
+                    li.textContent = `${index + 1}. ${entry.name} - ${entry.score} каменів`;
+                    leaderList.appendChild(li);
+                });
+            }
         }
 
-        // Відображає лідерів при завантаженні сторінки
+        // Завантаження лідерів при завантаженні сторінки
         window.onload = displayLeaderboard;
     </script>
 </body>
