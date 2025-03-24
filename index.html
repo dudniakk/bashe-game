@@ -10,124 +10,28 @@
             background-color: #1a1a1a;
             color: #fff;
             text-align: center;
-            margin: 0;
-            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-image: url('https://source.unsplash.com/1600x900/?nature,game');
-            background-size: cover;
-            background-position: center;
-            animation: backgroundAnimation 20s infinite alternate;
         }
-
-        @keyframes backgroundAnimation {
-            0% {
-                background-image: url('https://source.unsplash.com/1600x900/?nature,game');
-            }
-            50% {
-                background-image: url('https://source.unsplash.com/1600x900/?mountains,landscape');
-            }
-            100% {
-                background-image: url('https://source.unsplash.com/1600x900/?sunset,sky');
-            }
-        }
-
         .game-container {
             background-color: rgba(44, 44, 44, 0.9);
             padding: 20px;
             border-radius: 15px;
             width: 300px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-            transition: transform 0.3s ease;
-            animation: gameContainerAnimation 2s ease-out;
-        }
-
-        @keyframes gameContainerAnimation {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        h1 {
-            animation: fadeIn 1.5s ease-in-out;
-        }
-
-        .stones {
-            font-size: 1.5em;
-            margin: 20px 0;
-            animation: fadeInUp 1s ease-out;
-        }
-
-        .controls button {
-            margin: 5px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            animation: buttonAnimation 1.5s ease-out;
-        }
-
-        .controls button:hover {
-            background-color: #0056b3;
-            transform: scale(1.1);
-        }
-
-        .controls button:disabled {
-            background-color: #555;
-            cursor: not-allowed;
-        }
-
-        @keyframes buttonAnimation {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .status {
-            font-size: 1.2em;
-            margin: 10px 0;
-            animation: fadeInUp 1.5s ease-out;
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <div class="start-screen" id="startScreen">
-            <h1>Вибір кількості каменів</h1>
+        <div id="startScreen">
+            <h1>Налаштування гри</h1>
+            <label for="stoneCountInput">Кількість каменів:</label>
             <input type="number" id="stoneCountInput" min="10" max="100" value="25">
-            <button onclick="startGame()">Почати гру</button>
+            <h2>Хто ходить першим?</h2>
+            <button onclick="startGame('player')">Гравець</button>
+            <button onclick="startGame('bot')">Бот</button>
         </div>
         <div id="gameScreen" style="display:none;">
             <h1>Гра Баше</h1>
@@ -143,46 +47,44 @@
 
     <script>
         let stones = 25;
+        let currentPlayer;
 
-        function startGame() {
+        function startGame(firstPlayer) {
             stones = parseInt(document.getElementById("stoneCountInput").value);
-            if (isNaN(stones) || stones < 10 || stones > 100) {
-                alert("Введіть правильну кількість каменів (від 10 до 100). ");
-                return;
-            }
+            currentPlayer = firstPlayer;
             document.getElementById("startScreen").style.display = "none";
             document.getElementById("gameScreen").style.display = "block";
             updateDisplay('Гра почалася!');
+            if (currentPlayer === 'bot') {
+                setTimeout(botMove, 1000);
+            }
         }
 
         function playerMove(amount) {
-            disableButtons();
+            if (currentPlayer !== 'player') return;
             stones -= amount;
             updateDisplay(`Ти взяв ${amount} камінь(я).`);
-
-            if (stones <= 0) {
-                setTimeout(() => {
-                    alert("Ти виграв!");
-                    resetGame();
-                }, 500);
-            } else {
+            currentPlayer = 'bot';
+            checkGameOver();
+            if (stones > 0) {
                 setTimeout(botMove, 1000);
             }
         }
 
         function botMove() {
-            let botChoice = stones % 4 === 0 ? Math.min(Math.floor(Math.random() * 3) + 1, stones) : Math.min(stones % 4, stones);
+            if (currentPlayer !== 'bot') return;
+            let botChoice = 1;
+            if (stones % 4 !== 0) {
+                botChoice = stones % 4;
+            } else if (stones > 3) {
+                botChoice = 3;
+            } else {
+                botChoice = stones;
+            }
             stones -= botChoice;
             updateDisplay(`Бот взяв ${botChoice} камінь(я).`);
-
-            if (stones <= 0) {
-                setTimeout(() => {
-                    alert("Бот виграв!");
-                    resetGame();
-                }, 500);
-            } else {
-                enableButtons();
-            }
+            currentPlayer = 'player';
+            checkGameOver();
         }
 
         function updateDisplay(statusText) {
@@ -190,19 +92,13 @@
             document.getElementById('status').innerText = statusText;
         }
 
-        function disableButtons() {
-            document.querySelectorAll(".controls button").forEach(button => button.disabled = true);
-        }
-
-        function enableButtons() {
-            document.querySelectorAll(".controls button").forEach(button => button.disabled = false);
-        }
-
-        function resetGame() {
-            document.getElementById("startScreen").style.display = "block";
-            document.getElementById("gameScreen").style.display = "none";
-            document.getElementById("stoneCountInput").value = 25;
-            enableButtons();
+        function checkGameOver() {
+            if (stones <= 0) {
+                setTimeout(() => {
+                    alert(currentPlayer === 'player' ? "Бот виграв!" : "Ти виграв!");
+                    location.reload();
+                }, 500);
+            }
         }
     </script>
 </body>
