@@ -155,6 +155,7 @@
             document.getElementById("gameScreen").style.display = "block";
             updateDisplay('Гра почалася!');
             if (currentPlayer === 'bot') {
+                disableButtons();
                 setTimeout(botMove, 1000);
             }
         }
@@ -164,6 +165,7 @@
             stones -= amount;
             updateDisplay(`Ти взяв ${amount} камінь(я).`);
             currentPlayer = 'bot';
+            disableButtons();
             checkGameOver();
             if (stones > 0) {
                 setTimeout(botMove, 1000);
@@ -171,24 +173,25 @@
         }
 
         function botMove() {
-            if (currentPlayer !== 'bot') return;
-            let botChoice = 1;
-            if (stones % 4 !== 0) {
-                botChoice = stones % 4;
-            } else if (stones > 3) {
-                botChoice = 3;
-            } else {
-                botChoice = stones;
-            }
+            let botChoice = stones % 4 !== 0 ? stones % 4 : Math.min(3, stones);
             stones -= botChoice;
             updateDisplay(`Бот взяв ${botChoice} камінь(я).`);
             currentPlayer = 'player';
+            enableButtons();
             checkGameOver();
         }
 
         function updateDisplay(statusText) {
             document.getElementById('stones').innerText = `Залишилося каменів: ${stones}`;
             document.getElementById('status').innerText = statusText;
+        }
+
+        function disableButtons() {
+            document.querySelectorAll(".controls button").forEach(button => button.disabled = true);
+        }
+
+        function enableButtons() {
+            document.querySelectorAll(".controls button").forEach(button => button.disabled = false);
         }
 
         function checkGameOver() {
